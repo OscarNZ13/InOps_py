@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_iconos.html" import icono %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<header class="inicio-encabezado">
+  <div>
+    <h1>Hola, {{ current_user.username }}</h1>
+    <p class="texto-suave">¿Qué quieres hacer hoy?</p>
+  </div>
+  <span class="etiqueta">{{ current_user.role.description or current_user.role.name }}</span>
+</header>
+
+<section class="modulos" aria-label="Módulos">
+  {% for modulo in modulos %}
+    {% if modulo.endpoint %}
+      <a class="modulo vidrio" href="{{ url_for(modulo.endpoint) }}">
+    {% else %}
+      <div class="modulo vidrio modulo-inactivo" aria-disabled="true">
+    {% endif %}
+        <div class="modulo-cabecera">
+          <span class="modulo-icono">{{ icono(modulo.icono) }}</span>
+          {% if modulo.endpoint %}
+            <span class="modulo-flecha">{{ icono("flecha") }}</span>
+          {% else %}
+            <span class="etiqueta etiqueta-tenue">Próximamente</span>
+          {% endif %}
+        </div>
+        <h2>{{ modulo.titulo }}</h2>
+        <p>{{ modulo.descripcion }}</p>
+    {% if modulo.endpoint %}</a>{% else %}</div>{% endif %}
+  {% endfor %}
+</section>
+{% endblock %}

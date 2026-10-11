@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ "Registrarse" if activo == "register" else "Iniciar sesión" }}{% endblock %}
+
+{% macro campo(field) %}
+  <div class="campo">
+    {{ field.label }}
+    {{ field(aria_invalid="true" if field.errors else "false", **kwargs) }}
+    {% for error in field.errors %}
+      <span class="campo-error">{{ error }}</span>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+<section class="acceso">
+  <div class="tarjeta vidrio">
+    <header class="acceso-encabezado">
+      <div class="marca-icono" aria-hidden="true">IO</div>
+      <h1>Bienvenido a InOps</h1>
+      <p>Registro de colaboradores</p>
+    </header>
+
+    <nav class="pestanas" role="tablist" data-pestanas data-activo="{{ activo }}">
+      <a class="pestana" role="tab" id="pestana-login" href="{{ url_for('auth.login') }}"
+         data-pestana="login" aria-controls="panel-login"
+         aria-selected="{{ 'true' if activo == 'login' else 'false' }}"
+         tabindex="{{ 0 if activo == 'login' else -1 }}">Iniciar sesión</a>
+      <a class="pestana" role="tab" id="pestana-register" href="{{ url_for('auth.register') }}"
+         data-pestana="register" aria-controls="panel-register"
+         aria-selected="{{ 'true' if activo == 'register' else 'false' }}"
+         tabindex="{{ 0 if activo == 'register' else -1 }}">Registrarse</a>
+    </nav>
+
+    <form class="formulario" id="panel-login" role="tabpanel" aria-labelledby="pestana-login" novalidate
+          method="post" action="{{ url_for('auth.login', next=request.args.get('next')) }}"
+          {{ 'hidden' if activo != 'login' }}>
+      {{ login_form.hidden_tag() }}
+      {{ campo(login_form.username, autocomplete="username", placeholder="Tu nombre de usuario") }}
+      {{ campo(login_form.password, autocomplete="current-password", placeholder="••••••••") }}
+      {{ login_form.submit(class_="boton") }}
+    </form>
+
+    <form class="formulario" id="panel-register" role="tabpanel" aria-labelledby="pestana-register" novalidate
+          method="post" action="{{ url_for('auth.register') }}"
+          {{ 'hidden' if activo != 'register' }}>
+      {{ registro_form.hidden_tag() }}
+      {{ campo(registro_form.username, autocomplete="username", placeholder="Elige un nombre de usuario") }}
+      {{ campo(registro_form.password, autocomplete="new-password", placeholder="Mínimo 8 caracteres") }}
+      {{ campo(registro_form.confirmar_password, autocomplete="new-password", placeholder="Repite la contraseña") }}
+      {{ registro_form.submit(class_="boton") }}
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/acceso.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}No encontrado{% endblock %}
+{% block content %}
+<section class="acceso">
+  <div class="tarjeta vidrio acceso-encabezado">
+    <h1>Página no encontrada</h1>
+    <p><a href="{{ url_for('index') }}">Volver al inicio</a></p>
+  </div>
+</section>
+{% endblock %}

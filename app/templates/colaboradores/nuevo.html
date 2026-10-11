@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% from "_iconos.html" import icono %}
+{% block title %}Nuevo colaborador{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('index') }}">{{ icono("volver") }} Inicio</a>
+  <h1>Nuevo colaborador</h1>
+</header>
+{% endblock %}
