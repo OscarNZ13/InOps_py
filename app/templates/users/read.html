@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}{{ user.username }}{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('users.list') }}">{{ icon("back") }} Usuarios</a>
+  <h1>{{ user.username }}</h1>
+  <p class="texto-suave">Detalle del usuario.</p>
+</header>
+
+<section class="tarjeta vidrio detalle-tarjeta">
+  <dl class="detalle">
+    <div>
+      <dt>Rol</dt>
+      <dd><span class="etiqueta">{{ user.role.description or user.role.name }}</span></dd>
+    </div>
+    <div>
+      <dt>Estado</dt>
+      <dd>
+        <span class="estado {{ 'estado-activo' if user.is_active else 'estado-inactivo' }}">
+          {{ "Activo" if user.is_active else "Inactivo" }}
+        </span>
+      </dd>
+    </div>
+    <div>
+      <dt>Creado</dt>
+      <dd>{{ user.created_at.strftime("%d/%m/%Y %H:%M") }}</dd>
+    </div>
+    <div>
+      <dt>Última modificación</dt>
+      <dd>{{ user.updated_at.strftime("%d/%m/%Y %H:%M") }}</dd>
+    </div>
+  </dl>
+
+  <div class="acciones">
+    <a class="boton-secundario" href="{{ url_for('users.update', id_user=user.id_user) }}">{{ icon("edit") }} Editar</a>
+    {% if user.id_user != current_user.id_user %}
+      <form class="en-linea" method="post"
+            action="{{ url_for('users.deactivate' if user.is_active else 'users.activate', id_user=user.id_user) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="{{ 'boton-secundario boton-peligro' if user.is_active else 'boton-secundario' }}" type="submit">
+          {{ icon("power") }} {{ "Desactivar" if user.is_active else "Activar" }}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

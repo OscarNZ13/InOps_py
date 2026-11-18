@@ -1,0 +1,13 @@
+{# Macros de formularios. Uso: {% from "_forms.html" import form_field %} y luego {{ form_field(form.username) }} #}
+{% macro form_field(field) %}
+  <div class="campo">
+    {{ field.label }}
+    {{ field(aria_invalid="true" if field.errors else "false", **kwargs) }}
+    {% if field.description %}
+      <span class="campo-ayuda">{{ field.description }}</span>
+    {% endif %}
+    {% for error in field.errors %}
+      <span class="campo-error">{{ error }}</span>
+    {% endfor %}
+  </div>
+{% endmacro %}

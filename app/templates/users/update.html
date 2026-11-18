@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_forms.html" import form_field %}
+{% block title %}Editar {{ user.username }}{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('users.read', id_user=user.id_user) }}">{{ icon("back") }} {{ user.username }}</a>
+  <h1>Editar usuario</h1>
+  {% if user.id_user == current_user.id_user %}
+    <p class="texto-suave">Es tu propio usuario: no puedes quitarte el rol de administrador.</p>
+  {% endif %}
+</header>
+
+<section class="tarjeta vidrio formulario-tarjeta">
+  <form class="formulario" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form_field(form.username, autocomplete="off") }}
+    {{ form_field(form.id_role) }}
+    {{ form_field(form.password, autocomplete="new-password", placeholder="Mínimo 8 caracteres") }}
+    {{ form_field(form.confirm_password, autocomplete="new-password", placeholder="Repite la contraseña") }}
+    <div class="formulario-acciones">
+      <a class="boton-secundario" href="{{ url_for('users.read', id_user=user.id_user) }}">Cancelar</a>
+      {{ form.submit(class_="boton boton-auto") }}
+    </div>
+  </form>
+</section>
+{% endblock %}

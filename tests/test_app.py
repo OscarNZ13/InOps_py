@@ -1,4 +1,4 @@
-def test_la_app_arranca(client):
+def test_app_starts(client):
     assert client.get("/").status_code == 200
 
 

@@ -6,7 +6,7 @@ load_dotenv()
 
 
 class Config:
-    """Configuración común a todos los entornos, leída desde .env."""
+    """Configuracion comun a todos los entornos, leida desde .env."""
 
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
@@ -40,5 +40,5 @@ CONFIGS = {
 
 
 def get_config(name: str | None = None) -> type[Config]:
-    """Devuelve la clase de configuración por nombre o según FLASK_ENV_NAME."""
+    """Devuelve la clase de configuracion por nombre o segun FLASK_ENV_NAME."""
     return CONFIGS[name or os.getenv("FLASK_ENV_NAME", "development")]
