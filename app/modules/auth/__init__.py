@@ -1,4 +1,4 @@
-"""Módulo de autenticación: inicio de sesión, registro y cierre de sesión de los usuarios del sistema."""
+"""Modulo de autenticacion: inicio de sesion, registro y cierre de sesion de los usuarios del sistema."""
 from flask import Blueprint
 
 from app.extensions import db, login_manager
@@ -8,9 +8,10 @@ bp = Blueprint("auth", __name__)
 
 
 @login_manager.user_loader
-def cargar_usuario(user_id: str) -> User | None:
-    """Recupera al usuario de la sesión en cada petición."""
-    return db.session.get(User, int(user_id))
+def load_user(user_id: str) -> User | None:
+    """Recupera al usuario de la sesion en cada peticion. Si esta inactivo, lo saca de la sesion."""
+    user = db.session.get(User, int(user_id))
+    return user if user and user.is_active else None
 
 
 from app.modules.auth import routes  # noqa: E402,F401

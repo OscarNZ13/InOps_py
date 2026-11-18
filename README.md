@@ -35,7 +35,7 @@ app/
   core/                Código común: tipos de modelos, permisos por rol y tarjetas del inicio
   modules/             Un paquete por módulo funcional (Blueprint)
     auth/              Login, registro y logout de los usuarios del sistema
-    colaboradores/     Lista, búsqueda y alta de colaboradores
+    collaborators/     Lista, búsqueda y alta de colaboradores
   templates/           Plantillas HTML (Jinja2), una carpeta por módulo
   static/              CSS y archivos estáticos
 database/              Scripts SQL que crean las bases de datos
@@ -43,3 +43,19 @@ docs/                  Documentación del proyecto
 tests/                 Pruebas automáticas (pytest)
 run.py                 Punto de entrada de la aplicación
 ```
+
+## Convenciones de nombres
+
+- **El código va en inglés:** módulos, archivos, clases, funciones, variables, endpoints y URLs.
+  Los textos que ve el usuario, los comentarios y la documentación van en español.
+- **Las acciones CRUD usan siempre los mismos verbos**, tanto en la función de la ruta como en su
+  plantilla: `list`, `read`, `create` y `update`. Como nada se borra, en lugar de `delete` se usan
+  `activate` y `deactivate`.
+
+  ```python
+  @bp.route("/create")
+  @role_required("admin", "dcc")
+  def create():
+      return render_template("collaborators/user_profile.html")
+  ```
+- **Las clases CSS** se mantienen en español (`vidrio`, `tarjeta`, `boton`...).

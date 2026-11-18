@@ -47,9 +47,9 @@ Los **usuarios** serán las personas que inicien sesión en InOps. No son lo mis
   forma similar a `[Authorize(Roles = "...")]` en .NET:
 
   ```python
-  @bp.route("/nuevo")
-  @rol_requerido("admin", "dcc")
-  def nuevo(): ...
+  @bp.route("/create")
+  @role_required("admin", "dcc")
+  def create(): ...
   ```
 
   Si alguien sin el rol entra a esa URL, deberá recibir **403 – Acceso denegado**.
@@ -68,11 +68,13 @@ Los **usuarios** serán las personas que inicien sesión en InOps. No son lo mis
 
 ### 2.4 Módulo de Usuarios (solo admin)
 
-| Función | Comportamiento esperado |
-| --- | --- |
-| Listar usuarios | Mostrará todos los usuarios con su rol y su estado |
-| Cambiar rol | Permitirá asignar `admin`, `dcc` o `rrhh` |
-| Activar / desactivar | Un usuario desactivado no podrá iniciar sesión. Nunca se borrará |
+| Función | Acción | Comportamiento esperado |
+| --- | --- | --- |
+| Listar usuarios | `list` | Mostrará todos los usuarios con su rol y su estado |
+| Ver detalle | `read` | Rol, estado y fechas de creación y modificación |
+| Crear usuario | `create` | Usuario, contraseña y rol elegido por el admin. Mismas reglas que el registro (sección 2.3). Entra activo |
+| Editar usuario | `update` | Cambiar el nombre de usuario, el rol (`admin`, `dcc` o `rrhh`) y, opcionalmente, la contraseña |
+| Activar / desactivar | `activate` / `deactivate` | Un usuario desactivado no podrá iniciar sesión y, si tenía una sesión abierta, la perderá. Nunca se borrará |
 
 El admin **no podrá** desactivarse ni quitarse el rol de admin a sí mismo, para que el sistema nunca
 se quede sin administrador.

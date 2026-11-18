@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_iconos.html" import icono %}
+{% from "_icons.html" import icon %}
 {% block title %}Inicio{% endblock %}
 {% block content %}
 <header class="inicio-encabezado">
@@ -11,23 +11,23 @@
 </header>
 
 <section class="modulos" aria-label="Módulos">
-  {% for modulo in modulos %}
-    {% if modulo.endpoint %}
-      <a class="modulo vidrio" href="{{ url_for(modulo.endpoint) }}">
+  {% for module in modules %}
+    {% if module.endpoint %}
+      <a class="modulo vidrio" href="{{ url_for(module.endpoint) }}">
     {% else %}
       <div class="modulo vidrio modulo-inactivo" aria-disabled="true">
     {% endif %}
         <div class="modulo-cabecera">
-          <span class="modulo-icono">{{ icono(modulo.icono) }}</span>
-          {% if modulo.endpoint %}
-            <span class="modulo-flecha">{{ icono("flecha") }}</span>
+          <span class="modulo-icono">{{ icon(module.icon) }}</span>
+          {% if module.endpoint %}
+            <span class="modulo-flecha">{{ icon("arrow") }}</span>
           {% else %}
             <span class="etiqueta etiqueta-tenue">Próximamente</span>
           {% endif %}
         </div>
-        <h2>{{ modulo.titulo }}</h2>
-        <p>{{ modulo.descripcion }}</p>
-    {% if modulo.endpoint %}</a>{% else %}</div>{% endif %}
+        <h2>{{ module.title }}</h2>
+        <p>{{ module.description }}</p>
+    {% if module.endpoint %}</a>{% else %}</div>{% endif %}
   {% endfor %}
 </section>
 {% endblock %}

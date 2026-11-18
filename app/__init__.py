@@ -6,12 +6,12 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
 from app.config import get_config
-from app.core.modulos import modulos_para
+from app.core.modules import modules_for
 from app.extensions import csrf, db, login_manager
 
 
 def create_app(config_name: str | None = None) -> Flask:
-    """Fábrica de la aplicación: carga la configuración, enlaza extensiones y registra módulos."""
+    """Fabrica de la aplicacion: carga la configuracion, enlaza extensiones y registra modulos."""
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(get_config(config_name))
 
@@ -27,33 +27,35 @@ def create_app(config_name: str | None = None) -> Flask:
     login_manager.init_app(app)
 
     from app.modules.auth import bp as auth_bp
-    from app.modules.auth.routes import mostrar_acceso
-    from app.modules.colaboradores import bp as colaboradores_bp
+    from app.modules.auth.routes import render_access
+    from app.modules.collaborators import bp as collaborators_bp
+    from app.modules.users import bp as users_bp
 
     app.register_blueprint(auth_bp)
-    app.register_blueprint(colaboradores_bp, url_prefix="/colaboradores")
+    app.register_blueprint(collaborators_bp, url_prefix="/collaborators")
+    app.register_blueprint(users_bp, url_prefix="/users")
 
     @app.route("/")
     def index():
-        """Sin sesión muestra el acceso (login/registro); con sesión, la página de inicio."""
+        """Sin sesion muestra el acceso (login/registro); con sesion, la pagina de inicio."""
         if not current_user.is_authenticated:
-            return mostrar_acceso("login")
-        return render_template("index.html", modulos=modulos_para(current_user))
+            return render_access("login")
+        return render_template("index.html", modules=modules_for(current_user))
 
     @app.errorhandler(403)
-    def acceso_denegado(_error):
-        return render_template("errores/403.html"), 403
+    def forbidden(_error):
+        return render_template("errors/403.html"), 403
 
     @app.errorhandler(404)
-    def no_encontrado(_error):
-        return render_template("errores/404.html"), 404
+    def not_found(_error):
+        return render_template("errors/404.html"), 404
 
     return app
 
 
 @event.listens_for(Engine, "connect")
-def _activar_fk_sqlite(dbapi_connection, _record):
-    """Activa las llaves foráneas en SQLite, que vienen desactivadas por defecto."""
+def _enable_sqlite_foreign_keys(dbapi_connection, _record):
+    """Activa las llaves foraneas en SQLite, que vienen desactivadas por defecto."""
     if dbapi_connection.__class__.__module__.startswith("sqlite3"):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('index') }}">{{ icon("back") }} Inicio</a>
+  <div class="pagina-titulo">
+    <div>
+      <h1>Usuarios</h1>
+      <p class="texto-suave">Quién entra al sistema, con qué rol y en qué estado.</p>
+    </div>
+    <a class="boton boton-auto" href="{{ url_for('users.create') }}">{{ icon("user-plus") }} Nuevo usuario</a>
+  </div>
+</header>
+
+<form class="busqueda" role="search" method="get" action="{{ url_for('users.list') }}" data-auto-submit>
+  <div class="buscador vidrio">
+    <label class="visualmente-oculto" for="filter-role">Rol</label>
+    <select class="buscador-selector" id="filter-role" name="role">
+      <option value="">Todos los roles</option>
+      {% for role in roles %}
+        <option value="{{ role.name }}" {{ "selected" if filters.role == role.name }}>
+          {{ role.description or role.name }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <div class="buscador-campo">
+      {{ icon("search") }}
+      <label class="visualmente-oculto" for="filter-search">Nombre de usuario</label>
+      <input id="filter-search" name="q" type="search" value="{{ filters.search }}"
+             placeholder="Buscar por nombre de usuario" autocomplete="off">
+    </div>
+
+    <button class="boton buscador-boton" type="submit">Buscar</button>
+  </div>
+
+  <div class="filtros-pie">
+    <fieldset class="filtro-estado">
+      <legend class="visualmente-oculto">Estado</legend>
+      {% for value, label in [("all", "Todos"), ("active", "Activos"), ("inactive", "Inactivos")] %}
+        <input class="visualmente-oculto" type="radio" id="status-{{ value }}" name="status" value="{{ value }}"
+               {{ "checked" if filters.status == value }}>
+        <label for="status-{{ value }}">{{ label }}</label>
+      {% endfor %}
+    </fieldset>
+
+    <p class="filtros-resumen texto-suave">
+      {{ users | length }} {{ "usuario" if users | length == 1 else "usuarios" }}
+      {% if filtered %}
+        · <a href="{{ url_for('users.list') }}">Limpiar filtros</a>
+      {% endif %}
+    </p>
+  </div>
+</form>
+
+<div class="tabla-contenedor vidrio">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th scope="col">Usuario</th>
+        <th scope="col">Rol</th>
+        <th scope="col">Estado</th>
+        <th scope="col" class="tabla-opcional">Creado</th>
+        <th scope="col"><span class="visualmente-oculto">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td class="tabla-principal">
+            {{ user.username }}
+            {% if user.id_user == current_user.id_user %}<span class="texto-suave">(tú)</span>{% endif %}
+          </td>
+          <td><span class="etiqueta">{{ user.role.description or user.role.name }}</span></td>
+          <td>
+            <span class="estado {{ 'estado-activo' if user.is_active else 'estado-inactivo' }}">
+              {{ "Activo" if user.is_active else "Inactivo" }}
+            </span>
+          </td>
+          <td class="tabla-opcional texto-suave">{{ user.created_at.strftime("%d/%m/%Y") }}</td>
+          <td class="tabla-accion">
+            <a href="{{ url_for('users.read', id_user=user.id_user) }}">Ver {{ icon("arrow") }}</a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td class="tabla-vacia" colspan="5">
+            {{ "Ningún usuario coincide con los filtros." if filtered else "No hay usuarios registrados." }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+{% endblock %}

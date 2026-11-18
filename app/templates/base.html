@@ -25,9 +25,9 @@
   </header>
 
   <main class="contenido">
-    {% with mensajes = get_flashed_messages(with_categories=true) %}
-      {% for categoria, mensaje in mensajes %}
-        <div class="alerta alerta-{{ categoria }} vidrio">{{ mensaje }}</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alerta alerta-{{ category }} vidrio">{{ message }}</div>
       {% endfor %}
     {% endwith %}
 
