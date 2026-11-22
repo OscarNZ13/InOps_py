@@ -2,6 +2,8 @@
 from flask import Blueprint
 from flask_login import login_required
 
+from app.modules.collaborators.models import Collaborator, CollaboratorProfile  # noqa: F401
+
 bp = Blueprint("collaborators", __name__)
 
 
