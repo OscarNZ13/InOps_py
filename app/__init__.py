@@ -1,13 +1,22 @@
 import os
+from urllib.parse import urlsplit
 
-from flask import Flask, render_template
+from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_login import current_user
+from flask_wtf.csrf import CSRFError
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
 from app.config import get_config
 from app.core.modules import modules_for
 from app.extensions import csrf, db, login_manager
+
+ERROR_PAGES = {
+    403: ("Acceso denegado", "Tu rol no tiene permiso para entrar a esta página.", "lock"),
+    404: ("Página no encontrada", "La dirección no existe o ya no está disponible.", "search"),
+    405: ("Acción no permitida", "Esta acción no se puede abrir directamente desde el navegador.", "alert"),
+    500: ("Algo salió mal", "Ocurrió un error inesperado. Intenta de nuevo en unos minutos.", "alert"),
+}
 
 
 def create_app(config_name: str | None = None) -> Flask:
@@ -42,13 +51,22 @@ def create_app(config_name: str | None = None) -> Flask:
             return render_access("login")
         return render_template("index.html", modules=modules_for(current_user))
 
-    @app.errorhandler(403)
-    def forbidden(_error):
-        return render_template("errors/403.html"), 403
+    def render_error(error):
+        title, message, icon_name = ERROR_PAGES[error.code]
+        page = render_template("errors/error.html", title=title, message=message, icon_name=icon_name)
+        return page, error.code
 
-    @app.errorhandler(404)
-    def not_found(_error):
-        return render_template("errors/404.html"), 404
+    for code in ERROR_PAGES:
+        app.register_error_handler(code, render_error)
+
+    @app.errorhandler(CSRFError)
+    def csrf_expired(_error):
+        """Token vencido o ausente: vuelve a la pagina del formulario en vez de mostrar un 400."""
+        flash("La página expiró. Intenta de nuevo.", "warning")
+        referrer = urlsplit(request.referrer or "")
+        if referrer.netloc == request.host and referrer.path:
+            return redirect(referrer.path + (f"?{referrer.query}" if referrer.query else ""))
+        return redirect(url_for("index"))
 
     return app
 

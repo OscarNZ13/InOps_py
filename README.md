@@ -36,8 +36,9 @@ app/
   modules/             Un paquete por módulo funcional (Blueprint)
     auth/              Login, registro y logout de los usuarios del sistema
     collaborators/     Lista, búsqueda y alta de colaboradores
+    users/             Administración de usuarios (solo admin): CRUD, roles, estado y filtros
   templates/           Plantillas HTML (Jinja2), una carpeta por módulo
-  static/              CSS y archivos estáticos
+  static/              CSS, JavaScript y archivos estáticos
 database/              Scripts SQL que crean las bases de datos
 docs/                  Documentación del proyecto
 tests/                 Pruebas automáticas (pytest)
@@ -56,6 +57,14 @@ run.py                 Punto de entrada de la aplicación
   @bp.route("/create")
   @role_required("admin", "dcc")
   def create():
-      return render_template("collaborators/user_profile.html")
+      return render_template("collaborators/create.html")
+  ```
+- **La excepción es `list`:** una función llamada `list` taparía la función `list()` de Python dentro
+  del archivo. Por eso la función se llama `list_view` y el endpoint se fija a mano, así sigue siendo
+  `url_for("users.list")`:
+
+  ```python
+  @bp.route("/", endpoint="list")
+  def list_view(): ...
   ```
 - **Las clases CSS** se mantienen en español (`vidrio`, `tarjeta`, `boton`...).

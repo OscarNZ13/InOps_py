@@ -14,8 +14,8 @@ def get_user_or_404(id_user: int) -> User:
     return user
 
 
-@bp.route("/")
-def list():
+@bp.route("/", endpoint="list")
+def list_view():
     roles = services.list_roles()
     role = request.args.get("role", "")
     status = request.args.get("status", "all")
