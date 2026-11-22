@@ -14,7 +14,9 @@ persona y a revisar que no choquen con las de nadie más.
 InOps automatizará ese proceso: se capturarán los datos personales y el sistema generará Iniciales y
 Firma únicas, siguiendo siempre las mismas reglas.
 
-Solo una persona usará el sistema a la vez; no será necesario soportar usuarios concurrentes.
+Varias personas podrán usar el sistema al mismo tiempo. Si dos operaciones chocan (por ejemplo, dos
+personas crean a la vez colaboradores a los que les tocan las mismas Iniciales), el sistema no
+mostrará un error genérico: lo resolverá o avisará en el formulario (ver sección 7.1).
 
 ---
 
@@ -77,7 +79,8 @@ Los **usuarios** serán las personas que inicien sesión en InOps. No son lo mis
 | Activar / desactivar | `activate` / `deactivate` | Un usuario desactivado no podrá iniciar sesión y, si tenía una sesión abierta, la perderá. Nunca se borrará |
 
 El admin **no podrá** desactivarse ni quitarse el rol de admin a sí mismo, para que el sistema nunca
-se quede sin administrador.
+se quede sin administrador. Además, siempre deberá quedar **al menos un admin activo**, aunque dos
+admins se quiten el rol o se desactiven entre sí al mismo tiempo.
 
 ---
 
@@ -233,6 +236,19 @@ El sistema deberá garantizar siempre que:
 - La unicidad se valide contra todos los colaboradores, incluidos los inactivos y los migrados.
 - Los colaboradores y los usuarios **nunca se eliminen**: solo se desactiven.
 - Las Iniciales y la Firma nunca cambien después de creadas.
+
+### 7.1 Operaciones simultáneas
+
+La base de datos es la que garantiza la unicidad (restricciones `UNIQUE`): aunque dos personas
+guarden en el mismo instante, nunca quedarán dos registros con el mismo valor. Lo que el sistema
+deberá cuidar es qué ve la persona cuyo guardado rechaza la base:
+
+| Choque | Comportamiento esperado |
+| --- | --- |
+| Dos colaboradores nuevos generan las mismas Iniciales o Firma | Se generan de nuevo (el siguiente valor libre) y se guarda sin que la persona lo note |
+| Dos personas guardan el mismo nombre de usuario | Se muestra "Ese usuario ya existe." en el formulario, sin perder lo escrito |
+| Dos perfiles guardan el mismo correo | Se muestra el error en el campo de correo |
+| Dos admins se quitan el rol o se desactivan entre sí | El segundo espera a que termine el primero y recibe "Debe quedar al menos un administrador activo." |
 
 ---
 
