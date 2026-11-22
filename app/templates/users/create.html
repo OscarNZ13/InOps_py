@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_forms.html" import form_field %}
+{% block title %}Nuevo usuario{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('users.list') }}">{{ icon("back") }} Usuarios</a>
+  <h1>Nuevo usuario</h1>
+  <p class="texto-suave">Podrá iniciar sesión de inmediato con el rol que elijas.</p>
+</header>
+
+<section class="tarjeta vidrio formulario-tarjeta">
+  <form class="formulario" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form_field(form.username, autocomplete="off", placeholder="Nombre de usuario") }}
+    {{ form_field(form.id_role) }}
+    {{ form_field(form.password, autocomplete="new-password", placeholder="Mínimo 8 caracteres") }}
+    {{ form_field(form.confirm_password, autocomplete="new-password", placeholder="Repite la contraseña") }}
+    <div class="formulario-acciones">
+      <a class="boton-secundario" href="{{ url_for('users.list') }}">Cancelar</a>
+      {{ form.submit(class_="boton boton-auto") }}
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -6,7 +6,7 @@ GO
 USE InOps;
 GO
 
--- Catálogo de roles con ids fijos en todos los entornos
+-- Catalogo de roles con ids fijos en todos los entornos
 CREATE TABLE dbo.Roles (
     id_role      TINYINT        NOT NULL,
     name         VARCHAR(20)    NOT NULL,
@@ -24,12 +24,12 @@ INSERT INTO dbo.Roles (id_role, name, Description) VALUES
     (3, 'dcc',   N'DCC');
 GO
 
--- Usuarios que inician sesión en el sistema
+-- Usuarios que inician sesion en el sistema
 CREATE TABLE dbo.Users (
     id_user        INT IDENTITY(1,1) NOT NULL,
     username       NVARCHAR(50)  NOT NULL,
     password_hash  VARCHAR(255)  NOT NULL,
-    id_role        TINYINT       NOT NULL CONSTRAINT df_Users_id_role   DEFAULT 3,
+    id_role        TINYINT       NOT NULL CONSTRAINT df_Users_id_role   DEFAULT 2,
     IsActive       BIT           NOT NULL CONSTRAINT df_Users_IsActive  DEFAULT 1,
     CreatedAt      DATETIME2     NOT NULL CONSTRAINT df_Users_CreatedAt DEFAULT SYSDATETIME(),
     UpdatedAt      DATETIME2     NOT NULL CONSTRAINT df_Users_UpdatedAt DEFAULT SYSDATETIME(),
@@ -56,7 +56,7 @@ CREATE TABLE dbo.Collaborators (
 );
 GO
 
--- Perfil 1 a 1 con Collaborators. Initials y Signature son únicos y no cambian después de crearse
+-- Perfil 1 a 1 con Collaborators. Initials y Signature son unicos y no cambian despues de crearse
 CREATE TABLE dbo.CollaboratorProfiles (
     id_profile   INT IDENTITY(1,1) NOT NULL,
     id_collab    INT            NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE dbo.CollaboratorProfiles (
 );
 GO
 
--- Email único solo cuando tiene valor (permite varios perfiles sin correo)
+-- Email unico solo cuando tiene valor (permite varios perfiles sin correo)
 CREATE UNIQUE INDEX ux_CollaboratorProfiles_Email
     ON dbo.CollaboratorProfiles(Email) WHERE Email IS NOT NULL;
 GO

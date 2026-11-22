@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="acceso">
+  <div class="tarjeta vidrio acceso-encabezado error-tarjeta">
+    <div class="marca-icono error-icono" aria-hidden="true">{{ icon(icon_name) }}</div>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <a class="boton" href="{{ url_for('index') }}">Volver al inicio</a>
+  </div>
+</section>
+{% endblock %}

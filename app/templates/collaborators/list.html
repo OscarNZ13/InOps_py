@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Lista de colaboradores{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('index') }}">{{ icon("back") }} Inicio</a>
+  <h1>Lista de colaboradores</h1>
+  <p class="texto-suave">Busca a un colaborador por su nombre, sus iniciales o su firma.</p>
+</header>
+
+<form class="busqueda" role="search" method="get" action="{{ url_for('collaborators.list') }}">
+  <div class="buscador vidrio">
+    <label class="visualmente-oculto" for="search-by">Buscar por</label>
+    <select class="buscador-selector" id="search-by" name="by">
+      <option value="name">Nombre</option>
+      <option value="initials">Iniciales</option>
+      <option value="signature">Firma</option>
+    </select>
+
+    <div class="buscador-campo">
+      {{ icon("search") }}
+      <label class="visualmente-oculto" for="search-text">Texto a buscar</label>
+      <input id="search-text" name="q" type="search" placeholder="¿A quién buscas?" autocomplete="off">
+    </div>
+
+    <button class="boton buscador-boton" type="submit">Buscar</button>
+  </div>
+
+  <fieldset class="filtro-estado">
+    <legend class="visualmente-oculto">Estado</legend>
+    <input class="visualmente-oculto" type="radio" id="status-active" name="status" value="active" checked>
+    <label for="status-active">Activos</label>
+    <input class="visualmente-oculto" type="radio" id="status-inactive" name="status" value="inactive">
+    <label for="status-inactive">Inactivos</label>
+    <input class="visualmente-oculto" type="radio" id="status-all" name="status" value="all">
+    <label for="status-all">Todos</label>
+  </fieldset>
+</form>
+{% endblock %}

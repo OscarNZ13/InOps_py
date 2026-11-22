@@ -1,4 +1,4 @@
-"""Instancias de las extensiones de Flask, compartidas por todos los módulos."""
+"""Instancias de las extensiones de Flask, compartidas por todos los modulos."""
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
