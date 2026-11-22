@@ -126,6 +126,16 @@ Antes de generar nada, el formulario deberá validar:
 3. La fecha de nacimiento es obligatoria y no puede ser futura.
 4. Los nombres se **guardarán** con capitalización estándar (primera letra de cada palabra en
    mayúscula, el resto en minúscula), sin importar cómo se hayan escrito: `dE lA o` → `De La O`.
+5. **Dos nombres o apellidos en un solo campo.** Si el primer nombre o el primer apellido lleva un
+   guion y su segundo campo está vacío (`Pérez-Soto` sin segundo apellido), probablemente son dos
+   valores escritos juntos. El formulario no guardará y mostrará una advertencia:
+   > Parece que escribiste dos apellidos en un campo. Escribe el segundo en «Segundo apellido».
+
+   Junto a la advertencia habrá una casilla **"Sí, es un solo apellido"** (o "un solo nombre"). Si se
+   marca, se guarda tal cual, para no impedir los apellidos compuestos que sí llevan guion.
+
+   Es importante porque las Iniciales y la Firma nunca cambian: `Pérez-Soto` en un solo campo genera
+   `OPE` / `OPerezsoto`, mientras que `Pérez` + `Soto` genera `OPS` / `OPerez`.
 
 ---
 
@@ -170,9 +180,11 @@ Firma base = 1.ª letra del primer nombre + primer apellido completo
 Al generar Iniciales y Firma:
 
 1. Se quitarán los acentos (`á → a`) y la ñ (`ñ → n`).
-2. Un nombre o apellido de varias palabras contará como **una sola unidad**: solo se tomará la letra
+2. Se quitarán los apóstrofos, guiones y cualquier carácter que no sea letra, dejando el texto pegado:
+   `O'Neil → ONeil`, `Pérez-Soto → PerezSoto`.
+3. Un nombre o apellido de varias palabras contará como **una sola unidad**: solo se tomará la letra
    de la primera palabra, nunca una por palabra.
-3. En la Firma se eliminarán los espacios internos del primer apellido.
+4. En la Firma se eliminarán los espacios internos del primer apellido.
 
 ### 5.5 Casos de ejemplo
 
