@@ -12,7 +12,7 @@ class Collaborator(TimestampMixin, db.Model):
     second_name = db.Column("SecondName", db.Unicode(50))
     last_name = db.Column("LastName", db.Unicode(50), nullable=False)
     second_last_name = db.Column("SecondLastName", db.Unicode(50))
-    birthdate = db.Column("Birthdate", db.Date, nullable=False)
+    birthdate = db.Column("Birthdate", db.Date)
     is_active = db.Column("IsActive", db.Boolean, nullable=False, default=True)
 
     profile = db.relationship("CollaboratorProfile", back_populates="collaborator", uselist=False)
@@ -21,6 +21,12 @@ class Collaborator(TimestampMixin, db.Model):
     def full_name(self) -> str:
         names = (self.first_name, self.second_name, self.last_name, self.second_last_name)
         return " ".join(name for name in names if name)
+
+    @property
+    def last_modified(self):
+        """Puesto, correo, etc. viven en el perfil: si solo cambia el perfil, su fecha es la mas reciente."""
+        dates = (self.updated_at, self.profile.updated_at if self.profile else None)
+        return max(date for date in dates if date is not None)
 
 
 class CollaboratorProfile(TimestampMixin, db.Model):

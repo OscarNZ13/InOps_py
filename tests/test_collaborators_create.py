@@ -26,9 +26,9 @@ def only_free_the_first_time(monkeypatch, name):
     real = getattr(services, name)
     calls = []
 
-    def fake(value):
-        calls.append(value)
-        return False if len(calls) == 1 else real(value)
+    def fake(*args, **kwargs):
+        calls.append(args)
+        return False if len(calls) == 1 else real(*args, **kwargs)
 
     monkeypatch.setattr(services, name, fake)
 
@@ -111,7 +111,6 @@ def test_same_name_gets_the_next_free_values(client, dcc):
         ({"last_name": "O"}, "El primer apellido debe tener al menos 2 letras."),
         ({"first_name": "A"}, "El primer nombre debe tener al menos 2 letras."),
         ({"birthdate": (date.today() + timedelta(days=1)).isoformat()}, "La fecha de nacimiento no puede ser futura."),
-        ({"birthdate": ""}, "Elige la fecha de nacimiento."),
         ({"email": "no-es-correo"}, "Escribe un correo válido."),
         ({"phone": "llamar luego"}, "Usa solo números"),
     ],
@@ -213,3 +212,12 @@ def test_prolog_engine_creates_the_same_values(app, client, dcc):
 
     profiles = db.session.scalars(db.select(CollaboratorProfile).order_by(CollaboratorProfile.id_profile)).all()
     assert [(p.initials, p.signature) for p in profiles] == [("ONZ", "ONaranjo"), ("ODL", "ODelao")]
+
+
+def test_birthdate_is_optional(client, dcc):
+    create(client, birthdate="")
+
+    collaborator = db.session.scalars(db.select(Collaborator)).one()
+    assert collaborator.birthdate is None
+    html = client.get(f"/collaborators/{collaborator.id_collab}").get_data(as_text=True)
+    assert "Fecha de nacimiento" in html

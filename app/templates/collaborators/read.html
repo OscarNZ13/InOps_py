@@ -31,12 +31,13 @@
       ("Segundo nombre", collaborator.second_name),
       ("Primer apellido", collaborator.last_name),
       ("Segundo apellido", collaborator.second_last_name),
-      ("Fecha de nacimiento", collaborator.birthdate.strftime("%d/%m/%Y")),
+      ("Fecha de nacimiento", collaborator.birthdate.strftime("%d/%m/%Y") if collaborator.birthdate),
       ("Puesto", profile.position),
       ("Departamento", profile.department),
       ("Correo", profile.email),
       ("Teléfono", profile.phone),
       ("Creado", collaborator.created_at.strftime("%d/%m/%Y %H:%M")),
+      ("Última modificación", collaborator.last_modified.strftime("%d/%m/%Y %H:%M")),
     ] %}
       <div>
         <dt>{{ label }}</dt>
@@ -44,5 +45,18 @@
       </div>
     {% endfor %}
   </dl>
+
+  <div class="acciones">
+    {% if current_user.has_role("admin", "dcc") %}
+      <a class="boton-secundario" href="{{ url_for('collaborators.update', id_collab=collaborator.id_collab) }}">{{ icon("edit") }} Editar</a>
+    {% endif %}
+    <form class="en-linea" method="post"
+          action="{{ url_for('collaborators.deactivate' if collaborator.is_active else 'collaborators.activate', id_collab=collaborator.id_collab) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="{{ 'boton-secundario boton-peligro' if collaborator.is_active else 'boton-secundario' }}" type="submit">
+        {{ icon("power") }} {{ "Desactivar" if collaborator.is_active else "Activar" }}
+      </button>
+    </form>
+  </div>
 </section>
 {% endblock %}

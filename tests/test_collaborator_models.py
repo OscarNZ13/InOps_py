@@ -77,3 +77,12 @@ def test_profile_requires_existing_collaborator(app):
     with pytest.raises(IntegrityError):
         db.session.commit()
     db.session.rollback()
+
+
+def test_birthdate_is_optional_in_the_database(app):
+    collaborator = Collaborator(first_name="Oscar", last_name="Naranjo")
+    collaborator.profile = CollaboratorProfile(initials="ONA", signature="ONaranjo")
+    db.session.add(collaborator)
+    db.session.commit()
+
+    assert db.session.get(Collaborator, collaborator.id_collab).birthdate is None

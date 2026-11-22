@@ -1,13 +1,7 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% from "_forms.html" import form_field %}
+{% from "collaborators/_fields.html" import collaborator_fields %}
 {% block title %}Nuevo colaborador{% endblock %}
-
-{% macro confirm_box(form, field) %}
-  {% if field.name in form.confirmations_needed or field.data %}
-    <label class="campo-confirmar">{{ field() }} {{ field.label.text }}</label>
-  {% endif %}
-{% endmacro %}
 
 {% block content %}
 <header class="pagina-encabezado">
@@ -20,29 +14,7 @@
 <section class="tarjeta vidrio formulario-tarjeta formulario-ancho">
   <form class="formulario" method="post" novalidate>
     {{ form.hidden_tag() }}
-
-    <h2 class="formulario-seccion">Datos personales</h2>
-    <div class="formulario-grid">
-      <div class="campo-grupo">
-        {{ form_field(form.first_name, autocomplete="off") }}
-        {{ confirm_box(form, form.single_first_name) }}
-      </div>
-      {{ form_field(form.second_name, autocomplete="off") }}
-      <div class="campo-grupo">
-        {{ form_field(form.last_name, autocomplete="off") }}
-        {{ confirm_box(form, form.single_last_name) }}
-      </div>
-      {{ form_field(form.second_last_name, autocomplete="off") }}
-      {{ form_field(form.birthdate, max=today) }}
-    </div>
-
-    <h2 class="formulario-seccion">Perfil <span class="texto-suave">(opcional)</span></h2>
-    <div class="formulario-grid">
-      {{ form_field(form.position) }}
-      {{ form_field(form.department) }}
-      {{ form_field(form.email, type="email", autocomplete="off") }}
-      {{ form_field(form.phone, type="tel") }}
-    </div>
+    {{ collaborator_fields(form, today) }}
 
     <div class="formulario-acciones">
       <a class="boton-secundario" href="{{ url_for('collaborators.list') }}">Cancelar</a>
