@@ -1,4 +1,5 @@
--- Esquema de la base InOps (SQL Server). Los cambios futuros van en scripts nuevos numerados (02_..., 03_...).
+-- Esquema completo de la base InOps (SQL Server), tal como lo usa la app. Si el esquema cambia, se
+-- actualiza este mismo script: no hay scripts de ALTER aparte.
 
 CREATE DATABASE InOps COLLATE Modern_Spanish_CI_AI;
 GO

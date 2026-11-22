@@ -47,6 +47,10 @@ En **SSMS**, conectarse al servidor local y ejecutar, en este orden:
 
 Para ejecutar un script: *File → Open → File*, elegir el `.sql` y presionar **Execute** (F5).
 
+> `01_crear_bd.sql` siempre tiene el esquema completo y actualizado; no hay scripts de cambios aparte.
+> Si creaste la base con una versión anterior y no tiene datos que necesites, bórrala
+> (`DROP DATABASE InOps;`) y vuelve a ejecutar el script.
+
 Anota el **nombre del servidor** que aparece en la ventana de conexión de SSMS
 (por ejemplo `MI-PC`, `localhost` o `localhost\SQLEXPRESS`). Se usa en el paso 6.
 
