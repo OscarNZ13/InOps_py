@@ -5,8 +5,8 @@ from app.core.permissions import role_required
 from app.modules.collaborators import bp
 
 
-@bp.route("/")
-def list():
+@bp.route("/", endpoint="list")
+def list_view():
     return render_template("collaborators/list.html")
 
 

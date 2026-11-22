@@ -29,7 +29,7 @@ CREATE TABLE dbo.Users (
     id_user        INT IDENTITY(1,1) NOT NULL,
     username       NVARCHAR(50)  NOT NULL,
     password_hash  VARCHAR(255)  NOT NULL,
-    id_role        TINYINT       NOT NULL CONSTRAINT df_Users_id_role   DEFAULT 3,
+    id_role        TINYINT       NOT NULL CONSTRAINT df_Users_id_role   DEFAULT 2,
     IsActive       BIT           NOT NULL CONSTRAINT df_Users_IsActive  DEFAULT 1,
     CreatedAt      DATETIME2     NOT NULL CONSTRAINT df_Users_CreatedAt DEFAULT SYSDATETIME(),
     UpdatedAt      DATETIME2     NOT NULL CONSTRAINT df_Users_UpdatedAt DEFAULT SYSDATETIME(),
