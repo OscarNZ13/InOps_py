@@ -1,9 +1,76 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
+{% from "_forms.html" import form_field %}
 {% block title %}Nuevo colaborador{% endblock %}
+
+{% macro confirm_box(form, field) %}
+  {% if field.name in form.confirmations_needed or field.data %}
+    <label class="campo-confirmar">{{ field() }} {{ field.label.text }}</label>
+  {% endif %}
+{% endmacro %}
+
 {% block content %}
 <header class="pagina-encabezado">
   <a class="volver" href="{{ url_for('index') }}">{{ icon("back") }} Inicio</a>
   <h1>Nuevo colaborador</h1>
+  <p class="texto-suave">Las Iniciales y la Firma se generan al guardar y no se pueden cambiar después.</p>
 </header>
+
+<div class="crear-layout">
+<section class="tarjeta vidrio formulario-tarjeta formulario-ancho">
+  <form class="formulario" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <h2 class="formulario-seccion">Datos personales</h2>
+    <div class="formulario-grid">
+      <div class="campo-grupo">
+        {{ form_field(form.first_name, autocomplete="off") }}
+        {{ confirm_box(form, form.single_first_name) }}
+      </div>
+      {{ form_field(form.second_name, autocomplete="off") }}
+      <div class="campo-grupo">
+        {{ form_field(form.last_name, autocomplete="off") }}
+        {{ confirm_box(form, form.single_last_name) }}
+      </div>
+      {{ form_field(form.second_last_name, autocomplete="off") }}
+      {{ form_field(form.birthdate, max=today) }}
+    </div>
+
+    <h2 class="formulario-seccion">Perfil <span class="texto-suave">(opcional)</span></h2>
+    <div class="formulario-grid">
+      {{ form_field(form.position) }}
+      {{ form_field(form.department) }}
+      {{ form_field(form.email, type="email", autocomplete="off") }}
+      {{ form_field(form.phone, type="tel") }}
+    </div>
+
+    <div class="formulario-acciones">
+      <a class="boton-secundario" href="{{ url_for('collaborators.list') }}">Cancelar</a>
+      {{ form.submit(class_="boton boton-auto") }}
+    </div>
+  </form>
+</section>
+
+{% set new_ids = get_flashed_messages(category_filter=["toast"]) | map(attribute="id") | list %}
+<aside class="tarjeta vidrio recientes" aria-labelledby="recientes-titulo">
+  <div class="recientes-cabecera">
+    <h2 id="recientes-titulo">Creados recientemente</h2>
+    <a href="{{ url_for('collaborators.list') }}">Ver todos</a>
+  </div>
+  {% if recent %}
+    <ol class="recientes-lista">
+      {% for collaborator in recent %}
+        <li class="{{ 'reciente-nuevo' if collaborator.id_collab in new_ids }}">
+          <a href="{{ url_for('collaborators.read', id_collab=collaborator.id_collab) }}">
+            <span class="reciente-nombre">{{ collaborator.full_name }}</span>
+            <span class="reciente-valores">{{ collaborator.profile.initials }} · {{ collaborator.profile.signature }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="texto-suave">Todavía no hay colaboradores. Los que crees aparecerán aquí.</p>
+  {% endif %}
+</aside>
+</div>
 {% endblock %}

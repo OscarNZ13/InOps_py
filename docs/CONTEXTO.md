@@ -127,8 +127,10 @@ Antes de generar nada, el formulario deberá validar:
 2. Segundo nombre y segundo apellido son opcionales. Si se dejan vacíos o solo con espacios, se
    tratarán como si no existieran.
 3. La fecha de nacimiento es obligatoria y no puede ser futura.
-4. Los nombres se **guardarán** con capitalización estándar (primera letra de cada palabra en
-   mayúscula, el resto en minúscula), sin importar cómo se hayan escrito: `dE lA o` → `De La O`.
+4. Los nombres se **guardarán sin acentos, sin ñ y sin caracteres especiales**, con capitalización
+   estándar (primera letra de cada palabra en mayúscula, el resto en minúscula), sin importar cómo se
+   hayan escrito: `dE lA o` → `De La O`, `Zúñiga` → `Zuniga`, `Pérez-Soto` → `Perez Soto`,
+   `O'Neil` → `Oneil`. El puesto y el departamento también se guardarán sin acentos.
 5. **Dos nombres o apellidos en un solo campo.** Si el primer nombre o el primer apellido lleva un
    guion y su segundo campo está vacío (`Pérez-Soto` sin segundo apellido), probablemente son dos
    valores escritos juntos. El formulario no guardará y mostrará una advertencia:
