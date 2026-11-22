@@ -1,7 +1,7 @@
 """Rutas (controladores) del modulo de colaboradores."""
 from datetime import date
 
-from flask import abort, flash, redirect, render_template, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 
 from app.core.permissions import role_required
 from app.modules.collaborators import bp, services
@@ -15,7 +15,22 @@ CREATE_FIELDS = (
 
 @bp.route("/", endpoint="list")
 def list_view():
-    return render_template("collaborators/list.html")
+    by = request.args.get("by", "name")
+    status = request.args.get("status", "active")
+    filters = {
+        "q": request.args.get("q", "").strip(),
+        "by": by if by in services.SEARCH_FIELDS else "name",
+        "status": status if status in services.STATUSES else "active",
+    }
+    page = services.search_collaborators(
+        filters["q"], filters["by"], filters["status"], request.args.get("page", 1, type=int)
+    )
+    return render_template(
+        "collaborators/list.html",
+        page=page,
+        filters=filters,
+        filtered=bool(filters["q"] or filters["status"] != "active"),
+    )
 
 
 @bp.route("/create", methods=["GET", "POST"])

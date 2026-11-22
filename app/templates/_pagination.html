@@ -1,0 +1,28 @@
+{# Paginacion. Uso: {% from "_pagination.html" import pagination_nav %} y {{ pagination_nav(page, "collaborators.list", filters) }} #}
+{% macro pagination_nav(page, endpoint, args) %}
+  {% if page.pages > 1 %}
+    <nav class="paginacion" aria-label="Páginas">
+      {% if page.has_prev %}
+        <a href="{{ url_for(endpoint, page=page.prev_num, **args) }}">Anterior</a>
+      {% else %}
+        <span class="paginacion-off">Anterior</span>
+      {% endif %}
+
+      {% for number in page.iter_pages(left_edge=1, left_current=2, right_current=2, right_edge=1) %}
+        {% if number is none %}
+          <span class="paginacion-salto">…</span>
+        {% elif number == page.page %}
+          <span class="paginacion-actual" aria-current="page">{{ number }}</span>
+        {% else %}
+          <a href="{{ url_for(endpoint, page=number, **args) }}">{{ number }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page.has_next %}
+        <a href="{{ url_for(endpoint, page=page.next_num, **args) }}">Siguiente</a>
+      {% else %}
+        <span class="paginacion-off">Siguiente</span>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endmacro %}
