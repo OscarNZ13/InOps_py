@@ -51,10 +51,14 @@ def register():
 
     form = RegisterForm(prefix="register")
     if form.validate_on_submit():
-        user = services.create_user(form.username.data, form.password.data)
-        login_user(user)
-        flash("Cuenta creada correctamente.", "success")
-        return redirect(url_for("index"))
+        try:
+            user = services.create_user(form.username.data, form.password.data)
+        except services.UsernameTakenError as error:
+            form.username.errors.append(str(error))
+        else:
+            login_user(user)
+            flash("Cuenta creada correctamente.", "success")
+            return redirect(url_for("index"))
 
     return render_access("register", register_form=form)
 

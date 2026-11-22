@@ -43,22 +43,42 @@ def create_user(username: str, password: str, id_role: int) -> User:
     return auth_services.create_user(username, password, id_role)
 
 
+def ensure_another_admin_remains(user: User) -> None:
+    """Bloquea las filas de los admins activos hasta el commit (UPDLOCK en SQL Server).
+
+    Asi, si dos admins se quitan el rol entre si al mismo tiempo, el segundo espera al primero
+    y ya ve que no quedaria ningun admin.
+    """
+    admins = db.session.scalars(
+        db.select(User.id_user)
+        .where(User.id_role == ROLE_ADMIN, User.is_active == True)  # noqa: E712
+        .order_by(User.id_user)
+        .with_hint(User, "WITH (UPDLOCK)", "mssql")
+    )
+    if not set(admins) - {user.id_user}:
+        raise UserRuleError("Debe quedar al menos un administrador activo.")
+
+
 def update_user(user: User, actor: User, username: str, id_role: int, password: str | None = None) -> User:
     """`actor` es quien hace el cambio. La contrasena solo cambia si viene una nueva."""
     if user.id_user == actor.id_user and id_role != ROLE_ADMIN:
         raise UserRuleError("No puedes quitarte el rol de administrador.")
+    if id_role != ROLE_ADMIN:
+        ensure_another_admin_remains(user)
 
     user.username = auth_services.normalize_username(username)
     user.id_role = id_role
     if password:
         user.set_password(password)
-    db.session.commit()
+    auth_services.commit_user(user.username)
     return user
 
 
 def set_active(user: User, actor: User, active: bool) -> User:
     if not active and user.id_user == actor.id_user:
         raise UserRuleError("No puedes desactivar tu propio usuario.")
+    if not active:
+        ensure_another_admin_remains(user)
 
     user.is_active = active
     db.session.commit()

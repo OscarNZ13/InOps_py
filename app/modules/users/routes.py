@@ -3,6 +3,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from app.modules.auth.models import User
+from app.modules.auth.services import UsernameTakenError
 from app.modules.users import bp, services
 from app.modules.users.forms import CreateUserForm, UpdateUserForm
 
@@ -37,9 +38,13 @@ def list_view():
 def create():
     form = CreateUserForm()
     if form.validate_on_submit():
-        user = services.create_user(form.username.data, form.password.data, form.id_role.data)
-        flash(f"Usuario {user.username} creado.", "success")
-        return redirect(url_for("users.read", id_user=user.id_user))
+        try:
+            user = services.create_user(form.username.data, form.password.data, form.id_role.data)
+        except UsernameTakenError as error:
+            form.username.errors.append(str(error))
+        else:
+            flash(f"Usuario {user.username} creado.", "success")
+            return redirect(url_for("users.read", id_user=user.id_user))
 
     return render_template("users/create.html", form=form)
 
@@ -62,6 +67,8 @@ def update(id_user: int):
                 id_role=form.id_role.data,
                 password=form.password.data,
             )
+        except UsernameTakenError as error:
+            form.username.errors.append(str(error))
         except services.UserRuleError as error:
             flash(str(error), "danger")
         else:
