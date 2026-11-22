@@ -1,39 +1,98 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
+{% from "_pagination.html" import pagination_nav %}
 {% block title %}Lista de colaboradores{% endblock %}
 {% block content %}
 <header class="pagina-encabezado">
   <a class="volver" href="{{ url_for('index') }}">{{ icon("back") }} Inicio</a>
-  <h1>Lista de colaboradores</h1>
-  <p class="texto-suave">Busca a un colaborador por su nombre, sus iniciales o su firma.</p>
+  <div class="pagina-titulo">
+    <div>
+      <h1>Lista de colaboradores</h1>
+      <p class="texto-suave">Busca a un colaborador por su nombre, sus iniciales o su firma.</p>
+    </div>
+    {% if current_user.has_role("admin", "dcc") %}
+      <a class="boton boton-auto" href="{{ url_for('collaborators.create') }}">{{ icon("user-plus") }} Nuevo colaborador</a>
+    {% endif %}
+  </div>
 </header>
 
-<form class="busqueda" role="search" method="get" action="{{ url_for('collaborators.list') }}">
+<form class="busqueda" role="search" method="get" action="{{ url_for('collaborators.list') }}" data-auto-submit>
   <div class="buscador vidrio">
     <label class="visualmente-oculto" for="search-by">Buscar por</label>
     <select class="buscador-selector" id="search-by" name="by">
-      <option value="name">Nombre</option>
-      <option value="initials">Iniciales</option>
-      <option value="signature">Firma</option>
+      {% for value, label in [("name", "Nombre"), ("initials", "Iniciales"), ("signature", "Firma")] %}
+        <option value="{{ value }}" {{ "selected" if filters.by == value }}>{{ label }}</option>
+      {% endfor %}
     </select>
 
     <div class="buscador-campo">
       {{ icon("search") }}
       <label class="visualmente-oculto" for="search-text">Texto a buscar</label>
-      <input id="search-text" name="q" type="search" placeholder="¿A quién buscas?" autocomplete="off">
+      <input id="search-text" name="q" type="search" value="{{ filters.q }}" placeholder="¿A quién buscas?" autocomplete="off">
     </div>
 
     <button class="boton buscador-boton" type="submit">Buscar</button>
   </div>
 
-  <fieldset class="filtro-estado">
-    <legend class="visualmente-oculto">Estado</legend>
-    <input class="visualmente-oculto" type="radio" id="status-active" name="status" value="active" checked>
-    <label for="status-active">Activos</label>
-    <input class="visualmente-oculto" type="radio" id="status-inactive" name="status" value="inactive">
-    <label for="status-inactive">Inactivos</label>
-    <input class="visualmente-oculto" type="radio" id="status-all" name="status" value="all">
-    <label for="status-all">Todos</label>
-  </fieldset>
+  <div class="filtros-pie">
+    <fieldset class="filtro-estado">
+      <legend class="visualmente-oculto">Estado</legend>
+      {% for value, label in [("active", "Activos"), ("inactive", "Inactivos"), ("all", "Todos")] %}
+        <input class="visualmente-oculto" type="radio" id="status-{{ value }}" name="status" value="{{ value }}"
+               {{ "checked" if filters.status == value }}>
+        <label for="status-{{ value }}">{{ label }}</label>
+      {% endfor %}
+    </fieldset>
+
+    <p class="filtros-resumen texto-suave">
+      {{ "{:,}".format(page.total) }} {{ "colaborador" if page.total == 1 else "colaboradores" }}
+      {% if filtered %}
+        · <a href="{{ url_for('collaborators.list') }}">Limpiar filtros</a>
+      {% endif %}
+    </p>
+  </div>
 </form>
+
+<div class="tabla-contenedor vidrio">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Iniciales</th>
+        <th scope="col">Firma</th>
+        <th scope="col">Estado</th>
+        <th scope="col"><span class="visualmente-oculto">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collaborator in page.items %}
+        <tr>
+          <td class="tabla-principal">{{ collaborator.full_name }}</td>
+          <td class="tabla-codigo">{{ collaborator.profile.initials }}</td>
+          <td class="tabla-codigo">{{ collaborator.profile.signature }}</td>
+          <td>
+            <span class="estado {{ 'estado-activo' if collaborator.is_active else 'estado-inactivo' }}">
+              {{ "Activo" if collaborator.is_active else "Inactivo" }}
+            </span>
+          </td>
+          <td class="tabla-accion">
+            <a href="{{ url_for('collaborators.read', id_collab=collaborator.id_collab) }}">Ver {{ icon("arrow") }}</a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td class="tabla-vacia" colspan="5">
+            {{ "Ningún colaborador coincide con la búsqueda." if filtered else "Todavía no hay colaboradores registrados." }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{{ pagination_nav(page, "collaborators.list", filters) }}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
 {% endblock %}

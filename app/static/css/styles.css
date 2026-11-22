@@ -867,6 +867,54 @@ a.modulo:focus-visible {
   text-align: center;
 }
 
+.tabla-codigo {
+  color: var(--acento-2);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1.25rem;
+}
+
+.paginacion a,
+.paginacion span {
+  min-width: 2.25rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.paginacion a {
+  border: 1px solid var(--vidrio-borde);
+  background: var(--vidrio);
+  color: var(--texto);
+  transition: background 0.2s ease;
+}
+
+.paginacion a:hover {
+  background: var(--vidrio-fuerte);
+}
+
+.paginacion .paginacion-actual {
+  background: linear-gradient(135deg, var(--acento), var(--acento-2));
+  color: #fff;
+}
+
+.paginacion .paginacion-off,
+.paginacion .paginacion-salto {
+  color: var(--texto-suave);
+  opacity: 0.6;
+}
+
 .estado {
   display: inline-flex;
   align-items: center;

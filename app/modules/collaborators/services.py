@@ -1,8 +1,10 @@
 """Logica de negocio de colaboradores: las rutas la usan sin tocar la base de datos directamente."""
 from datetime import date
 
-from sqlalchemy import func
+from flask_sqlalchemy.pagination import Pagination
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import contains_eager
 
 from app.extensions import db
 from app.modules.collaborators.models import Collaborator, CollaboratorProfile
@@ -10,6 +12,12 @@ from app.modules.collaborators.rules import get_engine
 from app.modules.collaborators.rules.text import strip_accents, words
 
 MAX_ATTEMPTS = 3
+PER_PAGE = 25
+SEARCH_FIELDS = ("name", "initials", "signature")
+STATUSES = ("active", "inactive", "all")
+NAME_COLUMNS = (
+    Collaborator.first_name, Collaborator.second_name, Collaborator.last_name, Collaborator.second_last_name
+)
 
 
 class EmailTakenError(Exception):
@@ -56,6 +64,42 @@ def email_taken(email: str) -> bool:
 
 def get_collaborator(id_collab: int) -> Collaborator | None:
     return db.session.get(Collaborator, id_collab)
+
+
+def _contains(column, text: str):
+    return func.lower(column).contains(text.lower(), autoescape=True)
+
+
+def search_collaborators(text: str = "", by: str = "name", status: str = "active", page: int = 1) -> Pagination:
+    """Lista paginada (seccion 8.1). Busqueda parcial sin distinguir mayusculas ni acentos.
+
+    Por nombre, cada palabra debe aparecer en algun nombre o apellido: "oscar zuniga" encuentra a
+    Oscar Naranjo Zuniga.
+    """
+    query = (
+        db.select(Collaborator)
+        .join(Collaborator.profile)
+        .options(contains_eager(Collaborator.profile))
+        .order_by(
+            Collaborator.last_name, Collaborator.second_last_name, Collaborator.first_name, Collaborator.id_collab
+        )
+    )
+
+    if by == "name":
+        for word in words(text):
+            query = query.where(or_(*(_contains(column, word) for column in NAME_COLUMNS)))
+    else:
+        value = "".join(strip_accents(text).split())
+        if value:
+            column = CollaboratorProfile.initials if by == "initials" else CollaboratorProfile.signature
+            query = query.where(_contains(column, value))
+
+    if status == "active":
+        query = query.where(Collaborator.is_active == True)  # noqa: E712
+    elif status == "inactive":
+        query = query.where(Collaborator.is_active == False)  # noqa: E712
+
+    return db.paginate(query, page=page, per_page=PER_PAGE, error_out=False)
 
 
 def recent_collaborators(limit: int = 8) -> list[Collaborator]:
