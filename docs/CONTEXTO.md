@@ -94,7 +94,7 @@ admins se quiten el rol o se desactiven entre sí al mismo tiempo.
 | Segundo nombre | `SecondName` | Opcional |
 | Primer apellido | `LastName` | Obligatorio, mínimo 2 letras |
 | Segundo apellido | `SecondLastName` | Opcional |
-| Fecha de nacimiento | `Birthdate` | Obligatoria, no puede ser futura |
+| Fecha de nacimiento | `Birthdate` | Opcional. Si se indica, no puede ser futura |
 | Estado | `IsActive` | Automático. Se creará siempre como *Activo* |
 | Fecha de creación / modificación | `CreatedAt` / `UpdatedAt` | Automáticas |
 
@@ -126,7 +126,7 @@ Antes de generar nada, el formulario deberá validar:
    > El primer apellido debe tener al menos 2 letras.
 2. Segundo nombre y segundo apellido son opcionales. Si se dejan vacíos o solo con espacios, se
    tratarán como si no existieran.
-3. La fecha de nacimiento es obligatoria y no puede ser futura.
+3. La fecha de nacimiento es opcional. Si se indica, no puede ser futura.
 4. Los nombres se **guardarán sin acentos, sin ñ y sin caracteres especiales**, con capitalización
    estándar (primera letra de cada palabra en mayúscula, el resto en minúscula), sin importar cómo se
    hayan escrito: `dE lA o` → `De La O`, `Zúñiga` → `Zuniga`, `Pérez-Soto` → `Perez Soto`,

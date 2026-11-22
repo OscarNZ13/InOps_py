@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "collaborators/_fields.html" import collaborator_fields %}
+{% block title %}Editar {{ collaborator.full_name }}{% endblock %}
+{% block content %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('collaborators.read', id_collab=collaborator.id_collab) }}">{{ icon("back") }} {{ collaborator.full_name }}</a>
+  <h1>Editar colaborador</h1>
+  <p class="texto-suave">
+    Las Iniciales <strong>{{ collaborator.profile.initials }}</strong> y la Firma
+    <strong>{{ collaborator.profile.signature }}</strong> no cambian aunque edites el nombre.
+  </p>
+</header>
+
+<section class="tarjeta vidrio formulario-tarjeta formulario-ancho">
+  <form class="formulario" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ collaborator_fields(form, today) }}
+
+    <div class="formulario-acciones">
+      <a class="boton-secundario" href="{{ url_for('collaborators.read', id_collab=collaborator.id_collab) }}">Cancelar</a>
+      {{ form.submit(class_="boton boton-auto") }}
+    </div>
+  </form>
+</section>
+{% endblock %}

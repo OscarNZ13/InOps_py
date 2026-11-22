@@ -45,6 +45,19 @@ def clean_plain(text: str | None) -> str | None:
     return " ".join(strip_accents(text or "").split()) or None
 
 
+def clean_email(email: str | None) -> str | None:
+    return (clean(email) or "").lower() or None
+
+
+def _clean_names(first_name, second_name, last_name, second_last_name) -> dict[str, str | None]:
+    return {
+        "first_name": clean_name(first_name),
+        "second_name": clean_name(second_name),
+        "last_name": clean_name(last_name),
+        "second_last_name": clean_name(second_last_name),
+    }
+
+
 def _taken(condition) -> bool:
     """Compara contra todos los perfiles: activos, inactivos y migrados (seccion 6)."""
     return db.session.scalar(db.select(CollaboratorProfile.id_profile).where(condition)) is not None
@@ -58,8 +71,11 @@ def signature_taken(value: str) -> bool:
     return _taken(CollaboratorProfile.signature == value)
 
 
-def email_taken(email: str) -> bool:
-    return _taken(func.lower(CollaboratorProfile.email) == email.lower())
+def email_taken(email: str, except_profile: int | None = None) -> bool:
+    condition = func.lower(CollaboratorProfile.email) == email.lower()
+    if except_profile is not None:
+        condition &= CollaboratorProfile.id_profile != except_profile
+    return _taken(condition)
 
 
 def get_collaborator(id_collab: int) -> Collaborator | None:
@@ -115,7 +131,7 @@ def recent_collaborators(limit: int = 8) -> list[Collaborator]:
 def create_collaborator(
     first_name: str,
     last_name: str,
-    birthdate: date,
+    birthdate: date | None = None,
     second_name: str | None = None,
     second_last_name: str | None = None,
     position: str | None = None,
@@ -128,13 +144,8 @@ def create_collaborator(
     Si otra persona se gana las mismas Iniciales o Firma justo antes de guardar, se generan de nuevo
     (seccion 7.1).
     """
-    names = {
-        "first_name": clean_name(first_name),
-        "second_name": clean_name(second_name),
-        "last_name": clean_name(last_name),
-        "second_last_name": clean_name(second_last_name),
-    }
-    email = (clean(email) or "").lower() or None
+    names = _clean_names(first_name, second_name, last_name, second_last_name)
+    email = clean_email(email)
     engine = get_engine()
     extra = engine.extra_letter(names["second_last_name"], names["second_name"], names["last_name"])
 
@@ -158,3 +169,43 @@ def create_collaborator(
                 raise EmailTakenError("Ese correo ya pertenece a otro colaborador.") from None
 
     raise CollaboratorCreateError("No se pudieron generar Iniciales y Firma libres. Intenta de nuevo.")
+
+
+def update_collaborator(
+    collaborator: Collaborator,
+    first_name: str,
+    last_name: str,
+    birthdate: date | None = None,
+    second_name: str | None = None,
+    second_last_name: str | None = None,
+    position: str | None = None,
+    department: str | None = None,
+    email: str | None = None,
+    phone: str | None = None,
+) -> Collaborator:
+    """Cambia datos personales y del perfil. Iniciales y Firma no se recalculan (seccion 5.6)."""
+    profile = collaborator.profile
+    for name, value in _clean_names(first_name, second_name, last_name, second_last_name).items():
+        setattr(collaborator, name, value)
+    collaborator.birthdate = birthdate
+    profile.position = clean_plain(position)
+    profile.department = clean_plain(department)
+    profile.email = clean_email(email)
+    profile.phone = clean(phone)
+
+    own_profile, new_email = profile.id_profile, profile.email
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        if new_email and email_taken(new_email, except_profile=own_profile):
+            raise EmailTakenError("Ese correo ya pertenece a otro colaborador.") from None
+        raise
+    return collaborator
+
+
+def set_active(collaborator: Collaborator, active: bool) -> Collaborator:
+    """Los colaboradores nunca se borran: se desactivan (seccion 7)."""
+    collaborator.is_active = active
+    db.session.commit()
+    return collaborator

@@ -47,7 +47,7 @@ CREATE TABLE dbo.Collaborators (
     SecondName      NVARCHAR(50)  NULL,
     LastName        NVARCHAR(50)  NOT NULL,
     SecondLastName  NVARCHAR(50)  NULL,
-    Birthdate       DATE          NOT NULL,
+    Birthdate       DATE          NULL,
     IsActive        BIT           NOT NULL CONSTRAINT df_Collaborators_IsActive  DEFAULT 1,
     CreatedAt       DATETIME2     NOT NULL CONSTRAINT df_Collaborators_CreatedAt DEFAULT SYSDATETIME(),
     UpdatedAt       DATETIME2     NOT NULL CONSTRAINT df_Collaborators_UpdatedAt DEFAULT SYSDATETIME(),
