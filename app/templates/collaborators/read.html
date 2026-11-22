@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}{{ collaborator.full_name }}{% endblock %}
+{% block content %}
+{% set profile = collaborator.profile %}
+<header class="pagina-encabezado">
+  <a class="volver" href="{{ url_for('collaborators.list') }}">{{ icon("back") }} Colaboradores</a>
+  <div class="titulo-estado">
+    <h1>{{ collaborator.full_name }}</h1>
+    <span class="estado {{ 'estado-activo' if collaborator.is_active else 'estado-inactivo' }}">
+      {{ "Activo" if collaborator.is_active else "Inactivo" }}
+    </span>
+  </div>
+</header>
+
+<section class="identificadores" aria-label="Identificadores">
+  <div class="identificador vidrio">
+    <span>Iniciales</span>
+    <strong>{{ profile.initials }}</strong>
+  </div>
+  <div class="identificador vidrio">
+    <span>Firma</span>
+    <strong>{{ profile.signature }}</strong>
+  </div>
+</section>
+
+<section class="tarjeta vidrio detalle-tarjeta">
+  <dl class="detalle">
+    {% for label, value in [
+      ("Primer nombre", collaborator.first_name),
+      ("Segundo nombre", collaborator.second_name),
+      ("Primer apellido", collaborator.last_name),
+      ("Segundo apellido", collaborator.second_last_name),
+      ("Fecha de nacimiento", collaborator.birthdate.strftime("%d/%m/%Y")),
+      ("Puesto", profile.position),
+      ("Departamento", profile.department),
+      ("Correo", profile.email),
+      ("Teléfono", profile.phone),
+      ("Creado", collaborator.created_at.strftime("%d/%m/%Y %H:%M")),
+    ] %}
+      <div>
+        <dt>{{ label }}</dt>
+        <dd>{{ value or "—" }}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+</section>
+{% endblock %}

@@ -26,7 +26,7 @@
 
   <main class="contenido">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
+      {% for category, message in messages if category != "toast" %}
         <div class="alerta alerta-{{ category }} vidrio">{{ message }}</div>
       {% endfor %}
     {% endwith %}
@@ -34,6 +34,25 @@
     {% block content %}{% endblock %}
   </main>
 
+  <div class="toasts" aria-live="polite">
+    {% for toast in get_flashed_messages(category_filter=["toast"]) %}
+      <div class="toast vidrio" role="status">
+        <div class="toast-cabecera">
+          <strong>{{ toast.title }}</strong>
+          <button class="toast-cerrar" type="button" aria-label="Cerrar" data-cerrar>&times;</button>
+        </div>
+        <p>{{ toast.name }}</p>
+        <div class="toast-valores">
+          {% for label, value in toast["values"] %}
+            <span><small>{{ label }}</small> {{ value }}</span>
+          {% endfor %}
+        </div>
+        {% if toast.url %}<a href="{{ toast.url }}">Ver detalle</a>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <script src="{{ url_for('static', filename='js/toasts.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
