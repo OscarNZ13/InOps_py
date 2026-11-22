@@ -13,6 +13,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
+    RULES_ENGINE = os.getenv("RULES_ENGINE", "python")
 
 
 class DevelopmentConfig(Config):
