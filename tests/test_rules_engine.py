@@ -4,12 +4,15 @@ import pytest
 
 from app.modules.collaborators.rules import get_engine
 from app.modules.collaborators.rules.engine import RulesEngine
+from app.modules.collaborators.rules.prolog_engine import PrologEngine, prolog_available
 from app.modules.collaborators.rules.python_engine import PythonEngine, candidates, first_available
 from app.modules.collaborators.rules.text import first_letter, strip_accents, without_spaces
 
+needs_prolog = pytest.mark.skipif(not prolog_available(), reason="SWI-Prolog no esta instalado")
 
-# Cuando exista el motor Prolog se agrega aqui y todas las pruebas corren contra los dos
-@pytest.fixture(params=[PythonEngine], ids=["python"])
+
+# Cada prueba que pide `engine` corre contra los dos motores: deben dar resultados identicos
+@pytest.fixture(params=[PythonEngine, pytest.param(PrologEngine, marks=needs_prolog)], ids=["python", "prolog"])
 def engine(request):
     return request.param()
 
@@ -116,3 +119,34 @@ def test_get_engine_uses_the_configured_engine(app):
     assert isinstance(get_engine(), PythonEngine)
     with pytest.raises(ValueError, match="desconocido"):
         get_engine("cobol")
+
+
+@needs_prolog
+def test_get_engine_can_choose_prolog(app):
+    app.config["RULES_ENGINE"] = "prolog"
+    assert isinstance(get_engine(), PrologEngine)
+
+
+@needs_prolog
+def test_prolog_reports_errors_from_exists():
+    def broken_database(value):
+        raise ConnectionError("sin conexion")
+
+    with pytest.raises(ConnectionError):
+        PrologEngine().generate_initials("Oscar", "Naranjo", "Z", broken_database)
+
+
+def test_both_engines_agree_on_many_names():
+    if not prolog_available():
+        pytest.skip("SWI-Prolog no esta instalado")
+    names = [
+        ("Oscar", "Josue", "Naranjo", "Zuniga"), ("ana", None, "de la cruz", "  "), ("Ñoño", "", "Ñúñez", None),
+        ("María José", None, "Pérez-Soto", None), ("Luis", "Ángel", "O'Neil", None), ("Eva", None, "Li", "Wu"),
+    ]
+    taken = occupied("ONZ", "ONaranjo", "ONaranjoZ", "ADD", "NNU", "MPE", "LOA", "ELW", "ELi")
+    python, prolog = PythonEngine(), PrologEngine()
+    for first, second, last, second_last in names:
+        extra = python.extra_letter(second_last, second, last)
+        assert prolog.extra_letter(second_last, second, last) == extra
+        assert prolog.generate_initials(first, last, extra, taken) == python.generate_initials(first, last, extra, taken)
+        assert prolog.generate_signature(first, last, extra, taken) == python.generate_signature(first, last, extra, taken)
